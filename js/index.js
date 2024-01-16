@@ -1,53 +1,65 @@
 let snakeDirection = 'right'
 let snakeSegments = []
-let gameInterval;
-let applePosition = { row: -1, col: -1 }
+let gameInterval
+let applePosition = {
+  row: -1,
+  col: -1
+}
 let currentDifficulty = 'łatwy'
 
 function createGrid(rows, cols) {
   const gridContainer = document.createElement('div')
   gridContainer.classList.add('grid')
+
   for (let i = 0; i < rows * cols; i++) {
     const gridItem = document.createElement('div')
-    gridItem.classList.add('grid-item');
+    gridItem.classList.add('grid-item')
     const imgElement = document.createElement('img')
     imgElement.src = ''
     gridItem.appendChild(imgElement)
     gridContainer.appendChild(gridItem)
   }
+
   document.body.appendChild(gridContainer)
 
-  initializeSnake(rows, cols)
+  startSnake(rows, cols)
   renderSnake()
   placeApple()
 
   document.addEventListener('keydown', handleKeyPress)
 }
-function initializeSnake(rows, cols) {
+
+function startSnake(rows, cols) {
   const middleRowIndex = Math.floor(rows / 2)
   const middleColIndex = Math.floor(cols / 2)
   snakeSegments = [
-    { row: middleRowIndex, col: middleColIndex },
-    { row: middleRowIndex, col: middleColIndex - 1 }
+    {
+      row: middleRowIndex,
+      col: middleColIndex
+    },
+    {
+      row: middleRowIndex,
+      col: middleColIndex - 1
+    }
   ]
 }
 
 function handleKeyPress(event) {
   switch (event.key) {
-    case 'W':
     case 'w':
+    case 'ArrowUp':
       snakeDirection = 'up'
       break
-    case 'S':
     case 's':
+    case 'ArrowDown':
       snakeDirection = 'down'
-      break;
-    case 'A':
+      break
     case 'a':
+    case 'ArrowLeft':
       snakeDirection = 'left'
       break
-    case 'D':
     case 'd':
+    case 'ArrowRight':
       snakeDirection = 'right'
       break
   }
@@ -56,6 +68,7 @@ function handleKeyPress(event) {
 function moveSnake() {
   const gridSize = 21
   const head = { ...snakeSegments[0] }
+
   switch (snakeDirection) {
     case 'up':
       head.row -= 1
@@ -75,6 +88,7 @@ function moveSnake() {
     snakeSegments.unshift(head)
     const gridContainer = document.querySelector('.grid')
     const headIndex = head.row * gridSize + head.col
+
     if (gridContainer.children[headIndex].classList.contains('apple')) {
       placeApple()
     } else {
@@ -82,6 +96,7 @@ function moveSnake() {
       const tailIndex = tail.row * gridSize + tail.col
       gridContainer.children[tailIndex].classList.remove('snake-tail')
     }
+
     gridContainer.children[headIndex].classList.add('snake-head')
     renderSnake()
 
@@ -105,12 +120,13 @@ function isValidMove(head) {
   ) {
     return false
   }
-  return !snakeSegments.some(segment => segment.row === head.row && segment.col === head.col) &&
+
+  return !snakeSegments.find(segment => segment.row === head.row && segment.col === head.col) &&
     !gridItemIsOccupiedBySnake(head)
 }
 
 function gridItemIsOccupiedBySnake(position) {
-  return snakeSegments.some(segment => segment.row === position.row && segment.col === position.col)
+  return snakeSegments.find(segment => segment.row === position.row && segment.col === position.col)
 }
 
 function isCollisionWithFrame(head, gridSize) {
@@ -120,7 +136,7 @@ function isCollisionWithFrame(head, gridSize) {
 }
 
 function isCollisionWithSelf(head) {
-  return snakeSegments.slice(1).some(segment => segment.row === head.row && segment.col === head.col)
+  return snakeSegments.slice(1).find(segment => segment.row === head.row && segment.col === head.col)
 }
 
 function placeApple() {
@@ -129,12 +145,19 @@ function placeApple() {
   gridContainer.querySelector('.apple')?.classList.remove('apple')
 
   let randomRow, randomCol
+
   do {
     randomRow = Math.floor(Math.random() * (gridSize - 2)) + 1
     randomCol = Math.floor(Math.random() * (gridSize - 2)) + 1
-  } while (gridItemIsOccupiedBySnake({ row: randomRow, col: randomCol }))
+  } while (gridItemIsOccupiedBySnake({
+    row: randomRow,
+    col: randomCol
+  }))
 
-  applePosition = { row: randomRow, col: randomCol }
+  applePosition = {
+    row: randomRow,
+    col: randomCol
+  }
 
   const appleElement = gridContainer.children[randomRow * gridSize + randomCol]
   appleElement.classList.add('apple')
@@ -145,6 +168,7 @@ function resetGame() {
   if (existingGrid) {
     document.body.removeChild(existingGrid)
   }
+
   snakeDirection = 'right'
   snakeSegments = []
   applePosition = { row: -1, col: -1 }
@@ -182,6 +206,7 @@ function renderSnake() {
     gridContainer.children[segmentIndex].appendChild(snakeElement)
   })
 }
+
 function getRotationStyle(direction) {
   switch (direction) {
     case 'up':
@@ -194,6 +219,7 @@ function getRotationStyle(direction) {
       return 'rotate(-90deg)'
   }
 }
+
 function showLevelSelection() {
   document.getElementById('level-heading').classList.remove('hidden')
   document.getElementById('level-selection').classList.remove('hidden')
@@ -217,7 +243,7 @@ function setDifficulty(difficulty) {
 
   document.getElementById('level-heading').classList.add('hidden')
   document.getElementById('level-selection').classList.add('hidden')
-  document.getElementById('level-display').textContent = `Level: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`
+  document.getElementById('level-display').textContent = `Level: ${difficulty}`
   document.getElementById('level-display').classList.remove('hidden')
 }
 
