@@ -30,35 +30,41 @@ function createGrid(rows, cols) {
 }
 
 function startSnake(rows, cols) {
-  const middleRowIndex = Math.floor(rows / 2)
-  const middleColIndex = Math.floor(cols / 2)
+  const middleRowIndex = Math.floor(rows / 2);
+  const middleColIndex = Math.floor(cols / 2);
   snakeSegments = [
     {
       row: middleRowIndex,
-      col: middleColIndex
+      col: middleColIndex,
+      direction: 'right'
     },
     {
       row: middleRowIndex,
-      col: middleColIndex - 1
+      col: middleColIndex - 1,
+      direction: 'right'
     }
-  ]
+  ];
 }
 
 function handleKeyPress(event) {
   switch (event.key) {
     case 'w':
+    case 'W':
     case 'ArrowUp':
       snakeDirection = 'up'
       break
     case 's':
+    case 'S':
     case 'ArrowDown':
       snakeDirection = 'down'
       break
     case 'a':
+    case 'A':
     case 'ArrowLeft':
       snakeDirection = 'left'
       break
     case 'd':
+    case 'D':
     case 'ArrowRight':
       snakeDirection = 'right'
       break
@@ -171,7 +177,10 @@ function resetGame() {
 
   snakeDirection = 'right'
   snakeSegments = []
-  applePosition = { row: -1, col: -1 }
+  applePosition = {
+    row: -1,
+    col: -1
+  }
   clearInterval(gameInterval)
   showLevelSelection()
   createGrid(21, 21)
@@ -182,7 +191,7 @@ function renderSnake() {
 
   for (let i = 0; i < gridContainer.children.length; i++) {
     gridContainer.children[i].innerHTML = ''
-    gridContainer.children[i].classList.remove('snake-head', 'snake-tail')
+    gridContainer.children[i].classList.remove('snake-head', 'snake-tail', 'snake-body')
   }
 
   snakeSegments.forEach((segment, index) => {
@@ -194,12 +203,17 @@ function renderSnake() {
     imgElement.height = 25
 
     if (index === 0) {
-      imgElement.src = './gfx/snake.png'
+      imgElement.src = './gfx/snake-head.png'
       imgElement.style.transform = getRotationStyle(snakeDirection)
       snakeElement.classList.add('snake-head')
+    } else if (index === snakeSegments.length - 1) {
+      imgElement.src = './gfx/snake-tail.png'
+      imgElement.style.transform = getTailRotationStyle()
+      snakeElement.classList.add('snake-tail')
     } else {
       imgElement.src = './gfx/body.png'
-      snakeElement.classList.add('snake-tail')
+      imgElement.style.transform = getBodyRotationStyle(index)
+      snakeElement.classList.add('snake-body')
     }
 
     snakeElement.appendChild(imgElement)
@@ -217,6 +231,41 @@ function getRotationStyle(direction) {
       return 'rotate(90deg)'
     case 'right':
       return 'rotate(-90deg)'
+  }
+}
+function getTailRotationStyle() {
+  const tailIndex = snakeSegments.length - 1
+  const prevTailIndex = snakeSegments.length - 2
+
+  if (prevTailIndex >= 0) {
+    const deltaX = snakeSegments[tailIndex].col - snakeSegments[prevTailIndex].col
+    const deltaY = snakeSegments[tailIndex].row - snakeSegments[prevTailIndex].row
+
+    if (deltaX === 1) {
+      return 'rotate(-90deg)'
+    } else if (deltaX === -1) {
+      return 'rotate(90deg)'
+    } else if (deltaY === 1) {
+      return ''
+    } else if (deltaY === -1) {
+      return 'rotate(180deg)'
+    }
+  }
+}
+function getBodyRotationStyle(index) {
+  if (index > 0) {
+    const deltaX = snakeSegments[index].col - snakeSegments[index - 1].col
+    const deltaY = snakeSegments[index].row - snakeSegments[index - 1].row
+
+    if (deltaX === 1) {
+      return 'rotate(90deg)'
+    } else if (deltaX === -1) {
+      return 'rotate(-90deg)'
+    } else if (deltaY === 1) {
+      return ''
+    } else if (deltaY === -1) {
+      return 'rotate(180deg)'
+    }
   }
 }
 
