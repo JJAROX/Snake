@@ -1,15 +1,12 @@
 * {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
 }
-
-
 
 .grid {
   display: grid;
   grid-template-columns: repeat(21, 25px);
   grid-template-rows: repeat(21, 25px);
-  gap: 1px;
-  border: 2px solid #000;
+  border: 2px solid black;
   width: fit-content;
   margin: auto;
   position: relative;
@@ -18,7 +15,7 @@
 .grid-item {
   width: 25px;
   height: 25px;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(204, 204, 204);
   box-sizing: border-box;
   text-align: center;
   overflow: hidden;
@@ -55,9 +52,16 @@
   display: flex;
   justify-content: center;
   align-self: center;
+  background-color: blue;
 }
 
-.snake-tail {}
+.snake-body {
+  background-color: pink;
+}
+
+.snake-tail {
+  background-color: green;
+}
 
 #level-heading,
 #level-selection,
