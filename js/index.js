@@ -1,5 +1,5 @@
 let snakeDirection = 'right'
-let snakeSegments = []
+let snakeElements = []
 let gameInterval
 let applePosition = {
   row: -1,
@@ -30,9 +30,9 @@ function createGrid(rows, cols) {
 }
 
 function startSnake(rows, cols) {
-  const middleRowIndex = Math.floor(rows / 2);
-  const middleColIndex = Math.floor(cols / 2);
-  snakeSegments = [
+  const middleRowIndex = Math.floor(rows / 2)
+  const middleColIndex = Math.floor(cols / 2)
+  snakeElements = [
     {
       row: middleRowIndex,
       col: middleColIndex,
@@ -43,7 +43,7 @@ function startSnake(rows, cols) {
       col: middleColIndex - 1,
       direction: 'right'
     }
-  ];
+  ]
 }
 
 function handleKeyPress(event) {
@@ -73,7 +73,7 @@ function handleKeyPress(event) {
 
 function moveSnake() {
   const gridSize = 21
-  const head = { ...snakeSegments[0] }
+  const head = { ...snakeElements[0] }
 
   switch (snakeDirection) {
     case 'up':
@@ -91,14 +91,14 @@ function moveSnake() {
   }
 
   if (isValidMove(head)) {
-    snakeSegments.unshift(head)
+    snakeElements.unshift(head)
     const gridContainer = document.querySelector('.grid')
     const headIndex = head.row * gridSize + head.col
 
     if (gridContainer.children[headIndex].classList.contains('apple')) {
       placeApple()
     } else {
-      const tail = snakeSegments.pop()
+      const tail = snakeElements.pop()
       const tailIndex = tail.row * gridSize + tail.col
       gridContainer.children[tailIndex].classList.remove('snake-tail')
     }
@@ -106,7 +106,7 @@ function moveSnake() {
     gridContainer.children[headIndex].classList.add('snake-head')
     renderSnake()
 
-    if (isCollisionWithFrame(head, gridSize) || isCollisionWithSelf(head)) {
+    if (BorderCollision(head, gridSize) || SelfCollision(head)) {
       clearInterval(gameInterval)
       alert('Przegrałeś 🤣🤣🤣')
       resetGame()
@@ -127,24 +127,23 @@ function isValidMove(head) {
     return false
   }
 
-  return !snakeSegments.find(segment => segment.row === head.row && segment.col === head.col) &&
-    !gridItemIsOccupiedBySnake(head)
+  return !snakeElements.find(element => element.row === head.row && element.col === head.col) &&
+    !SnakeOnGrid(head)
 }
 
-function gridItemIsOccupiedBySnake(position) {
-  return snakeSegments.find(segment => segment.row === position.row && segment.col === position.col)
+function SnakeOnGrid(position) {
+  return snakeElements.find(element => element.row === position.row && element.col === position.col)
 }
 
-function isCollisionWithFrame(head, gridSize) {
+function BorderCollision(head, gridSize) {
   return (
     head.row < 0 || head.row >= gridSize || head.col < 0 || head.col >= gridSize
   )
 }
 
-function isCollisionWithSelf(head) {
-  return snakeSegments.slice(1).find(segment => segment.row === head.row && segment.col === head.col)
+function SelfCollision(head) {
+  return snakeElements.slice(1).find(element => element.row === head.row && element.col === head.col)
 }
-
 function placeApple() {
   const gridSize = 21
   const gridContainer = document.querySelector('.grid')
@@ -152,13 +151,14 @@ function placeApple() {
 
   let randomRow, randomCol
 
-  do {
+  while (true) {
     randomRow = Math.floor(Math.random() * (gridSize - 2)) + 1
     randomCol = Math.floor(Math.random() * (gridSize - 2)) + 1
-  } while (gridItemIsOccupiedBySnake({
-    row: randomRow,
-    col: randomCol
-  }))
+
+    if (!SnakeOnGrid({ row: randomRow, col: randomCol })) {
+      break
+    }
+  }
 
   applePosition = {
     row: randomRow,
@@ -168,7 +168,6 @@ function placeApple() {
   const appleElement = gridContainer.children[randomRow * gridSize + randomCol]
   appleElement.classList.add('apple')
 }
-
 function resetGame() {
   const existingGrid = document.querySelector('.grid')
   if (existingGrid) {
@@ -176,7 +175,7 @@ function resetGame() {
   }
 
   snakeDirection = 'right'
-  snakeSegments = []
+  snakeElements = []
   applePosition = {
     row: -1,
     col: -1
@@ -194,8 +193,8 @@ function renderSnake() {
     gridContainer.children[i].classList.remove('snake-head', 'snake-tail', 'snake-body')
   }
 
-  snakeSegments.forEach((segment, index) => {
-    const segmentIndex = segment.row * 21 + segment.col
+  snakeElements.forEach((element, index) => {
+    const elementIndex = element.row * 21 + element.col
     const snakeElement = document.createElement('div')
     const imgElement = document.createElement('img')
 
@@ -204,24 +203,24 @@ function renderSnake() {
 
     if (index === 0) {
       imgElement.src = './gfx/snake-head.png'
-      imgElement.style.transform = getRotationStyle(snakeDirection)
+      imgElement.style.transform = rotation(snakeDirection)
       snakeElement.classList.add('snake-head')
-    } else if (index === snakeSegments.length - 1) {
+    } else if (index === snakeElements.length - 1) {
       imgElement.src = './gfx/snake-tail.png'
-      imgElement.style.transform = getTailRotationStyle()
+      imgElement.style.transform = SnakeTailRotation()
       snakeElement.classList.add('snake-tail')
     } else {
       imgElement.src = './gfx/body.png'
-      imgElement.style.transform = getBodyRotationStyle(index)
+      imgElement.style.transform = SnakeBodyRotation(index)
       snakeElement.classList.add('snake-body')
     }
 
     snakeElement.appendChild(imgElement)
-    gridContainer.children[segmentIndex].appendChild(snakeElement)
+    gridContainer.children[elementIndex].appendChild(snakeElement)
   })
 }
 
-function getRotationStyle(direction) {
+function rotation(direction) {
   switch (direction) {
     case 'up':
       return 'rotate(180deg)'
@@ -233,13 +232,13 @@ function getRotationStyle(direction) {
       return 'rotate(-90deg)'
   }
 }
-function getTailRotationStyle() {
-  const tailIndex = snakeSegments.length - 1
-  const prevTailIndex = snakeSegments.length - 2
+function SnakeTailRotation() {
+  const tailIndex = snakeElements.length - 1
+  const prevTailIndex = snakeElements.length - 2
 
   if (prevTailIndex >= 0) {
-    const deltaX = snakeSegments[tailIndex].col - snakeSegments[prevTailIndex].col
-    const deltaY = snakeSegments[tailIndex].row - snakeSegments[prevTailIndex].row
+    const deltaX = snakeElements[tailIndex].col - snakeElements[prevTailIndex].col
+    const deltaY = snakeElements[tailIndex].row - snakeElements[prevTailIndex].row
 
     if (deltaX === 1) {
       return 'rotate(-90deg)'
@@ -252,10 +251,10 @@ function getTailRotationStyle() {
     }
   }
 }
-function getBodyRotationStyle(index) {
+function SnakeBodyRotation(index) {
   if (index > 0) {
-    const deltaX = snakeSegments[index].col - snakeSegments[index - 1].col
-    const deltaY = snakeSegments[index].row - snakeSegments[index - 1].row
+    const deltaX = snakeElements[index].col - snakeElements[index - 1].col
+    const deltaY = snakeElements[index].row - snakeElements[index - 1].row
 
     if (deltaX === 1) {
       return 'rotate(90deg)'
