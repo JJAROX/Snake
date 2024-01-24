@@ -6,29 +6,24 @@ let applePosition = {
   col: -1
 }
 let currentDifficulty = 'łatwy'
-
 function createGrid(rows, cols) {
   const gridContainer = document.createElement('div')
   gridContainer.classList.add('grid')
-
   for (let i = 0; i < rows * cols; i++) {
     const gridItem = document.createElement('div')
     gridItem.classList.add('grid-item')
     const imgElement = document.createElement('img')
     imgElement.src = ''
-    gridItem.appendChild(imgElement)
-    gridContainer.appendChild(gridItem)
+    gridItem.append(imgElement)
+    gridContainer.append(gridItem)
+
   }
-
-  document.body.appendChild(gridContainer)
-
+  document.body.append(gridContainer)
   startSnake(rows, cols)
   renderSnake()
   placeApple()
-
   document.addEventListener('keydown', handleKeyPress)
 }
-
 function startSnake(rows, cols) {
   const middleRowIndex = Math.floor(rows / 2)
   const middleColIndex = Math.floor(cols / 2)
@@ -45,7 +40,6 @@ function startSnake(rows, cols) {
     }
   ]
 }
-
 function handleKeyPress(event) {
   switch (event.key) {
     case 'w':
@@ -70,11 +64,9 @@ function handleKeyPress(event) {
       break
   }
 }
-
 function moveSnake() {
   const gridSize = 21
   const head = { ...snakeElements[0] }
-
   switch (snakeDirection) {
     case 'up':
       head.row -= 1
@@ -89,12 +81,10 @@ function moveSnake() {
       head.col += 1
       break
   }
-
   if (isValidMove(head)) {
     snakeElements.unshift(head)
     const gridContainer = document.querySelector('.grid')
     const headIndex = head.row * gridSize + head.col
-
     if (gridContainer.children[headIndex].classList.contains('apple')) {
       placeApple()
     } else {
@@ -102,10 +92,8 @@ function moveSnake() {
       const tailIndex = tail.row * gridSize + tail.col
       gridContainer.children[tailIndex].classList.remove('snake-tail')
     }
-
     gridContainer.children[headIndex].classList.add('snake-head')
     renderSnake()
-
     if (BorderCollision(head, gridSize) || SelfCollision(head)) {
       clearInterval(gameInterval)
       alert('Przegrałeś 🤣🤣🤣')
@@ -117,30 +105,24 @@ function moveSnake() {
     resetGame()
   }
 }
-
 function isValidMove(head) {
   const gridSize = 21
-
   if (
     head.row < 0 || head.row >= gridSize || head.col < 0 || head.col >= gridSize
   ) {
     return false
   }
-
   return !snakeElements.find(element => element.row === head.row && element.col === head.col) &&
     !SnakeOnGrid(head)
 }
-
 function SnakeOnGrid(position) {
   return snakeElements.find(element => element.row === position.row && element.col === position.col)
 }
-
 function BorderCollision(head, gridSize) {
   return (
     head.row < 0 || head.row >= gridSize || head.col < 0 || head.col >= gridSize
   )
 }
-
 function SelfCollision(head) {
   return snakeElements.slice(1).find(element => element.row === head.row && element.col === head.col)
 }
@@ -148,9 +130,7 @@ function placeApple() {
   const gridSize = 21
   const gridContainer = document.querySelector('.grid')
   gridContainer.querySelector('.apple')?.classList.remove('apple')
-
   let randomRow, randomCol
-
   while (true) {
     randomRow = Math.floor(Math.random() * (gridSize - 2)) + 1
     randomCol = Math.floor(Math.random() * (gridSize - 2)) + 1
@@ -159,12 +139,10 @@ function placeApple() {
       break
     }
   }
-
   applePosition = {
     row: randomRow,
     col: randomCol
   }
-
   const appleElement = gridContainer.children[randomRow * gridSize + randomCol]
   appleElement.classList.add('apple')
 }
@@ -173,7 +151,6 @@ function resetGame() {
   if (existingGrid) {
     document.body.removeChild(existingGrid)
   }
-
   snakeDirection = 'right'
   snakeElements = []
   applePosition = {
@@ -184,7 +161,6 @@ function resetGame() {
   showLevelSelection()
   createGrid(21, 21)
 }
-
 function renderSnake() {
   const gridContainer = document.querySelector('.grid')
 
@@ -192,15 +168,12 @@ function renderSnake() {
     gridContainer.children[i].innerHTML = ''
     gridContainer.children[i].classList.remove('snake-head', 'snake-tail', 'snake-body')
   }
-
   snakeElements.forEach((element, index) => {
     const elementIndex = element.row * 21 + element.col
     const snakeElement = document.createElement('div')
     const imgElement = document.createElement('img')
-
     imgElement.width = 25
     imgElement.height = 25
-
     if (index === 0) {
       imgElement.src = './gfx/snake-head.png'
       imgElement.style.transform = rotation(snakeDirection)
@@ -214,12 +187,10 @@ function renderSnake() {
       imgElement.style.transform = SnakeBodyRotation(index)
       snakeElement.classList.add('snake-body')
     }
-
-    snakeElement.appendChild(imgElement)
-    gridContainer.children[elementIndex].appendChild(snakeElement)
+    snakeElement.append(imgElement)
+    gridContainer.children[elementIndex].append(snakeElement)
   })
 }
-
 function rotation(direction) {
   switch (direction) {
     case 'up':
@@ -235,11 +206,9 @@ function rotation(direction) {
 function SnakeTailRotation() {
   const tailIndex = snakeElements.length - 1
   const prevTailIndex = snakeElements.length - 2
-
   if (prevTailIndex >= 0) {
     const deltaX = snakeElements[tailIndex].col - snakeElements[prevTailIndex].col
     const deltaY = snakeElements[tailIndex].row - snakeElements[prevTailIndex].row
-
     if (deltaX === 1) {
       return 'rotate(-90deg)'
     } else if (deltaX === -1) {
@@ -255,7 +224,6 @@ function SnakeBodyRotation(index) {
   if (index > 0) {
     const deltaX = snakeElements[index].col - snakeElements[index - 1].col
     const deltaY = snakeElements[index].row - snakeElements[index - 1].row
-
     if (deltaX === 1) {
       return 'rotate(90deg)'
     } else if (deltaX === -1) {
@@ -267,16 +235,13 @@ function SnakeBodyRotation(index) {
     }
   }
 }
-
 function showLevelSelection() {
   document.getElementById('level-heading').classList.remove('hidden')
   document.getElementById('level-selection').classList.remove('hidden')
   document.getElementById('level-display').classList.add('hidden')
 }
-
 function setDifficulty(difficulty) {
   currentDifficulty = difficulty
-
   switch (difficulty) {
     case 'Łatwy':
       gameInterval = setInterval(moveSnake, 150)
@@ -288,12 +253,10 @@ function setDifficulty(difficulty) {
       gameInterval = setInterval(moveSnake, 50)
       break
   }
-
   document.getElementById('level-heading').classList.add('hidden')
   document.getElementById('level-selection').classList.add('hidden')
   document.getElementById('level-display').textContent = `Level: ${difficulty}`
   document.getElementById('level-display').classList.remove('hidden')
 }
-
 showLevelSelection()
 createGrid(21, 21)
