@@ -52,15 +52,6 @@
   display: flex;
   justify-content: center;
   align-self: center;
-  background-color: blue;
-}
-
-.snake-body {
-  background-color: pink;
-}
-
-.snake-tail {
-  background-color: green;
 }
 
 #level-heading,
